@@ -5,8 +5,13 @@ export default function App() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        navigate('/login');
-    }, []);
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/home');
+        } else {
+            navigate('/login');
+        }
+    }, [navigate]);
 
     return null;
 }

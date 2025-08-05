@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../api/auth';
-import { useEffect } from 'react';
+import { registerUser } from '../api/auth';
 
-export default function Login() {
+export default function Register() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -14,11 +13,10 @@ export default function Login() {
         setError('');
 
         try {
-            const token = await loginUser(username, password);
-            localStorage.setItem('token', token);
-            navigate('/home');
+            await registerUser(username, password);
+            navigate('/login');
         } catch (err) {
-            setError('Hibás felhasználónév vagy jelszó!');
+            setError('A regisztráció sikertelen. Próbáld újra!');
         }
     };
 
@@ -31,17 +29,26 @@ export default function Login() {
 
     return (
         <div style={{ maxWidth: 400, margin: '0 auto', marginTop: '10%' }}>
-            <h2>Bejelentkezés</h2>
+            <h2>Regisztráció</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Felhasználónév</label>
-                    <input value={username} onChange={(e) => setUsername(e.target.value)} required />
+                    <input
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
                 </div>
                 <div>
                     <label>Jelszó</label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
                 </div>
-                <button type="submit">Bejelentkezés</button>
+                <button type="submit">Regisztráció</button>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
             </form>
         </div>
