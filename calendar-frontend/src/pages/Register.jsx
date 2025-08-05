@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../api/auth';
+import {FaUserPlus} from "react-icons/fa";
 
 export default function Register() {
     const [username, setUsername] = useState('');
@@ -28,29 +29,79 @@ export default function Register() {
     }, []);
 
     return (
-        <div style={{ maxWidth: 400, margin: '0 auto', marginTop: '10%' }}>
-            <h2>Regisztráció</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Felhasználónév</label>
-                    <input
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 flex items-center justify-center px-4">
+            <div className="w-full max-w-md">
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mb-4">
+                        <FaUserPlus className="w-8 h-8 text-white" />
+                    </div>
+                    <h1 className="text-3xl font-light text-gray-900 mb-2">Nail Studio</h1>
+                    <p className="text-gray-600 text-sm">Csatlakozzon hozzánk</p>
                 </div>
-                <div>
-                    <label>Jelszó</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+
+                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+                    <h2 className="text-2xl font-light text-gray-900 text-center mb-8">Regisztráció</h2>
+
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Felhasználónév
+                            </label>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                                placeholder="Válasszon felhasználónevet"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Jelszó
+                            </label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                                placeholder="Adjon meg egy biztonságos jelszót"
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            onClick={handleSubmit}
+                            className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl font-medium hover:from-pink-600 hover:to-rose-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-200 shadow-lg"
+                        >
+                            Regisztráció
+                        </button>
+
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm text-center">
+                                {error}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="mt-6 text-center">
+                        <p className="text-gray-600 text-sm">
+                            Már van fiókja?{' '}
+                            <a href="/login" className="text-pink-500 hover:text-pink-600 font-medium transition-colors">
+                                Bejelentkezés
+                            </a>
+                        </p>
+                    </div>
                 </div>
-                <button type="submit">Regisztráció</button>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-            </form>
+
+                <div className="text-center mt-6">
+                    <p className="text-gray-500 text-sm">
+                        © 2025 Nail Studio. Minden jog fenntartva.
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }
