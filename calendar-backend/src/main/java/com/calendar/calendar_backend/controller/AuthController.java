@@ -1,8 +1,8 @@
 package com.calendar.calendar_backend.controller;
 
-import com.calendar.calendar_backend.dto.AuthRequest;
-import com.calendar.calendar_backend.dto.AuthResponse;
-import com.calendar.calendar_backend.dto.RegisterRequest;
+import com.calendar.calendar_backend.dto.requests.AuthRequest;
+import com.calendar.calendar_backend.dto.responses.AuthResponse;
+import com.calendar.calendar_backend.dto.requests.RegisterRequest;
 import com.calendar.calendar_backend.entity.User;
 import com.calendar.calendar_backend.repository.UserRepository;
 import com.calendar.calendar_backend.service.JwtService;
@@ -38,6 +38,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        log.info("Login request: {}", request);
         try {
             Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
 
@@ -50,6 +51,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+        log.info("Register request: {}", request);
         if (userRepository.findByUsername(request.username()).isPresent()) {
             return ResponseEntity.badRequest().body("Username is already in use.");
         }
