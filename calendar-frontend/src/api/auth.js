@@ -17,3 +17,14 @@ export async function registerUser(username, password) {
     });
     return response.data;
 }
+
+export async function getAllAppointments() {
+    const response = await axios.get(`${API_URL}/appointments/all`)
+}
+
+export async function createAppointment(request) {
+    const response = await axios.post(`${API_URL}/appointments/new`,
+        request
+    )
+    return response.data
+}

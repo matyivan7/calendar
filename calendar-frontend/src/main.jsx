@@ -7,6 +7,7 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import PrivateRoute from "./api/PrivateRoute.jsx";
 import './index.css'
+import MyCalendar from "./pages/Calendar.jsx";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
@@ -21,6 +22,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 element={
                     <PrivateRoute>
                         <Home />
+                    </PrivateRoute>
+                }
+            />
+
+            <Route
+                path="/calendar"
+                element={
+                    <PrivateRoute>
+                        <MyCalendar />
                     </PrivateRoute>
                 }
             />

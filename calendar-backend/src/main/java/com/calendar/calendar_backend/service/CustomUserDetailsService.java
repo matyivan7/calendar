@@ -3,6 +3,7 @@ package com.calendar.calendar_backend.service;
 import com.calendar.calendar_backend.entity.User;
 import com.calendar.calendar_backend.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,12 +21,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Can not find user with the given username: " + username));
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Can not find user with the given username: " + username));
 
         return org.springframework.security.core.userdetails.User.builder()
             .username(user.getUsername())
             .password(user.getPassword())
-            .roles(user.getRole())
+            .authorities(AuthorityUtils.createAuthorityList(user.getRole()))
             .build();
     }
 }

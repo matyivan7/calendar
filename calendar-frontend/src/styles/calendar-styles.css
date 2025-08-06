@@ -1,0 +1,151 @@
+.calendar-container .rbc-calendar {
+    font-family: inherit;
+}
+
+.calendar-container .rbc-header {
+    background: linear-gradient(to right, #ec4899, #f43f5e);
+    color: white;
+    padding: 12px 8px;
+    font-weight: 500;
+    border: none;
+}
+
+.calendar-container .rbc-today {
+    background-color: #fdf2f8;
+}
+
+.calendar-container .rbc-off-range-bg {
+    background-color: #f9fafb;
+}
+
+.calendar-container .rbc-slot-selection {
+    background-color: rgba(236, 72, 153, 0.1);
+}
+
+.calendar-container .rbc-time-view .rbc-time-gutter {
+    background-color: #f8fafc;
+    border-right: 1px solid #e5e7eb;
+}
+
+.calendar-container .rbc-time-view .rbc-time-content {
+    border-left: none;
+}
+
+.calendar-container .rbc-day-slot .rbc-time-slot {
+    border-top: 1px solid #f1f5f9;
+}
+
+.calendar-container .rbc-timeslot-group {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.custom-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.custom-toolbar .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.custom-toolbar .toolbar-center {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.custom-toolbar .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.custom-toolbar .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: white;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.custom-toolbar .nav-button:hover {
+    background: linear-gradient(to right, #ec4899, #f43f5e);
+    color: white;
+    border-color: #ec4899;
+    transform: scale(1.05);
+}
+
+.custom-toolbar .today-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: white;
+    color: #6b7280;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.custom-toolbar .today-button:hover {
+    background: linear-gradient(to right, #ec4899, #f43f5e);
+    color: white;
+    border-color: #ec4899;
+    transform: scale(1.02);
+}
+
+.custom-toolbar .view-buttons {
+    display: flex;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.custom-toolbar .view-button {
+    padding: 0.5rem 0.75rem;
+    background: white;
+    color: #6b7280;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-right: 1px solid #e5e7eb;
+}
+
+.custom-toolbar .view-button:last-child {
+    border-right: none;
+}
+
+.custom-toolbar .view-button:hover {
+    background: #f9fafb;
+}
+
+.custom-toolbar .view-button.active {
+    background: linear-gradient(to right, #ec4899, #f43f5e);
+    color: white;
+}
+
+.custom-toolbar .current-date {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+}
