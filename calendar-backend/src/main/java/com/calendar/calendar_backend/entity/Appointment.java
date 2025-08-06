@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @Entity
@@ -18,7 +17,7 @@ import java.util.UUID;
 public class Appointment {
 
     @Id
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     @Column(name = "client_name")
     private String clientName;

@@ -10,8 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -36,10 +37,11 @@ public class AppointmentService {
     public Appointment createAppointment(AppointmentRequest request) {
         log.info("Create appointment and save to database");
         Appointment appointment = Appointment.builder()
+            .id(UUID.randomUUID().toString())
             .clientName(request.clientName())
             .serviceType(request.serviceType())
-            .startTime(LocalDateTime.parse(request.startTime()))
-            .endTime(LocalDateTime.parse(request.endTime()))
+            .startTime(OffsetDateTime.parse(request.startTime()).toLocalDateTime())
+            .endTime(OffsetDateTime.parse(request.endTime()).toLocalDateTime())
             .phoneNumber(request.phoneNumber())
             .notes(request.notes())
             .build();
