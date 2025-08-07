@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -29,15 +28,15 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/user")
-    public ResponseEntity<List<Appointment>> getUserAppointments(@AuthenticationPrincipal UserDetails user) {
-        log.info("Get appointments for user: {}", user.getUsername());
-        return ResponseEntity.ok(appointmentService.getAllAppointmentsByUser(user));
+    public ResponseEntity<List<Appointment>> getUserAppointments() {
+        log.info("Get appointments for user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+        return ResponseEntity.ok(appointmentService.getAllAppointmentsByUser());
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/new")
     public ResponseEntity<Appointment> createAppointment(@RequestBody AppointmentRequest request) {
-        log.info("Create appointment request: {}", request);
+        log.info("Create appointment request: {}, | Username: {}", request, SecurityContextHolder.getContext().getAuthentication().getName());
         return ResponseEntity.ok(appointmentService.createAppointment(request));
     }
 

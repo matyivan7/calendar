@@ -8,10 +8,9 @@ import com.calendar.calendar_backend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -29,23 +28,37 @@ public class AppointmentService {
         return appointmentRepository.findAll();
     }
 
-    public List<Appointment> getAllAppointmentsByUser(UserDetails userDetails) {
+    public List<Appointment> getAllAppointmentsByUser() {
         log.info("Get all appointments for user from database");
-        User user = userRepository.findByUsername(userDetails.getUsername())
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("User with the given username can not be not found"));
         return appointmentRepository.findAllByUser(user);
     }
 
     public Appointment createAppointment(AppointmentRequest request) {
         log.info("Create appointment and save to database");
+
+        OffsetDateTime start = OffsetDateTime.parse(request.startTime());
+        OffsetDateTime end = OffsetDateTime.parse(request.endTime());
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User with the given username can not be not found"));
+
+        if (!end.isAfter(start)) {
+            throw new IllegalArgumentException("A befejezés nem lehet korábbi vagy egyenlő a kezdésnél.");
+        }
+
         Appointment appointment = Appointment.builder()
             .id(UUID.randomUUID().toString())
             .clientName(request.clientName())
             .serviceType(request.serviceType())
-            .startTime(OffsetDateTime.parse(request.startTime()).toLocalDateTime())
-            .endTime(OffsetDateTime.parse(request.endTime()).toLocalDateTime())
+            .startTime(start)
+            .endTime(end)
             .phoneNumber(request.phoneNumber())
             .notes(request.notes())
+            .user(user)
             .build();
         return appointmentRepository.saveAndFlush(appointment);
     }
@@ -58,8 +71,8 @@ public class AppointmentService {
 
         appointment.setClientName(request.clientName());
         appointment.setServiceType(request.serviceType());
-        appointment.setStartTime(LocalDateTime.parse(request.startTime()));
-        appointment.setEndTime(LocalDateTime.parse(request.endTime()));
+        appointment.setStartTime(OffsetDateTime.parse(request.startTime()));
+        appointment.setEndTime(OffsetDateTime.parse(request.endTime()));
         appointment.setPhoneNumber(request.phoneNumber());
         appointment.setNotes(request.notes());
         return appointmentRepository.saveAndFlush(appointment);

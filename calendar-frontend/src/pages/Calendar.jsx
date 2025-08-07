@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Calendar, Views, dateFnsLocalizer } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
-import { hu } from 'date-fns/locale';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Calendar, dateFnsLocalizer, Views} from 'react-big-calendar';
+import {format, getDay, parse, startOfWeek} from 'date-fns';
+import {useNavigate} from 'react-router-dom';
+import {hu} from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/calendar-styles.css';
 import {createAppointment, getAllAppointments, updateAppointment} from "../api/auth.js";
@@ -23,7 +23,7 @@ const locales = {
 const localizer = dateFnsLocalizer({
     format,
     parse,
-    startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
+    startOfWeek: () => startOfWeek(new Date(), {weekStartsOn: 1}),
     getDay,
     locales,
     locale: hu
@@ -39,6 +39,7 @@ export default function MyCalendar() {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingEventId, setEditingEventId] = useState(null);
     const navigate = useNavigate();
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         clientName: '',
         serviceType: serviceTypes[0],
@@ -117,12 +118,46 @@ export default function MyCalendar() {
     }, []);
 
     const handleChange = useCallback((e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setFormData(prev => ({...prev, [name]: value}));
+
+        if (name === "phoneNumber") {
+            const phoneRegex = /^[0-9]{7,15}$/;
+            if (value && !phoneRegex.test(value)) {
+                setErrors(prev => ({
+                    ...prev,
+                    phoneNumber: "Érvénytelen telefonszám. Csak számokat használj (min. 7 karakter)."
+                }));
+            } else {
+                setErrors(prev => {
+                    const newErrors = {...prev};
+                    delete newErrors.phoneNumber;
+                    return newErrors;
+                });
+            }
+        }
     }, []);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
+
+        const start = new Date(formData.startTime);
+        const end = new Date(formData.endTime);
+
+        if (end <= start) {
+            alert("A befejezés nem lehet korábbi vagy egyenlő a kezdésnél.");
+            return;
+        }
+
+        if (!/^\d{7,15}$/.test(formData.phoneNumber)) {
+            alert("A telefonszám csak számokat tartalmazhat (minimum 7 számjegy).");
+            return;
+        }
+
+        if (!formData.clientName.trim()) {
+            alert("A név megadása kötelező.");
+            return;
+        }
         try {
             if (isEditMode) {
                 const updatedAppt = await updateAppointment(formData);
@@ -217,7 +252,7 @@ export default function MyCalendar() {
                     title="Előző"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
             </div>
@@ -228,7 +263,8 @@ export default function MyCalendar() {
                     onClick={() => handleNavigate('TODAY')}
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     Ma
                 </button>
@@ -244,7 +280,7 @@ export default function MyCalendar() {
                     title="Következő"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
                     </svg>
                 </button>
 
@@ -277,9 +313,12 @@ export default function MyCalendar() {
             <div className="bg-white shadow-sm border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center">
-                        <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mr-3">
+                        <div
+                            className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mr-3">
                             <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                                <path fillRule="evenodd"
+                                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                      clipRule="evenodd"/>
                             </svg>
                         </div>
                         <h1 className="text-2xl font-light text-gray-900">Nail Studio - Naptár</h1>
@@ -299,15 +338,16 @@ export default function MyCalendar() {
                             className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                             </svg>
                             Kijelentkezés
                         </button>
                     </div>
 
-                    <CustomToolbar />
+                    <CustomToolbar/>
 
-                    <div style={{ height: 'calc(100vh - 350px)' }} className="calendar-container">
+                    <div style={{height: 'calc(100vh - 350px)'}} className="calendar-container">
                         <Calendar
                             localizer={localizer}
                             events={events}
@@ -324,7 +364,7 @@ export default function MyCalendar() {
                             onSelectSlot={handleSelectSlot}
                             onDoubleClickEvent={handleDoubleClickEvent}
                             popup
-                            style={{ height: '100%' }}
+                            style={{height: '100%'}}
                             toolbar={false}
                             eventPropGetter={(event) => ({
                                 style: {
@@ -348,9 +388,12 @@ export default function MyCalendar() {
                         <div className="px-6 py-4 border-b border-gray-100">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
-                                    <div className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mr-3">
-                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    <div
+                                        className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mr-3">
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                             viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                  d="M12 4v16m8-8H4"/>
                                         </svg>
                                     </div>
                                     <h3 className="text-lg font-light text-gray-900">Új időpont</h3>
@@ -360,7 +403,8 @@ export default function MyCalendar() {
                                     className="text-gray-400 hover:text-gray-600 transition-colors p-1"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                              d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
                                 </button>
                             </div>
@@ -410,7 +454,7 @@ export default function MyCalendar() {
                                         <input
                                             name="startTime"
                                             type="datetime-local"
-                                            value={formData.startTime.slice(0, 16)}
+                                            value={formData.startTime instanceof Date ? formData.startTime.toISOString().slice(0, 16) : formData.startTime?.slice(0, 16)}
                                             onChange={handleChange}
                                             required
                                             className="w-full px-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none transition-all duration-200 bg-gray-50 focus:bg-white text-sm"
@@ -423,7 +467,7 @@ export default function MyCalendar() {
                                         <input
                                             name="endTime"
                                             type="datetime-local"
-                                            value={formData.endTime.slice(0, 16)}
+                                            value={formData.endTime instanceof Date ? formData.endTime.toISOString().slice(0, 16) : formData.endTime?.slice(0, 16)}
                                             onChange={handleChange}
                                             required
                                             className="w-full px-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none transition-all duration-200 bg-gray-50 focus:bg-white text-sm"
@@ -440,9 +484,13 @@ export default function MyCalendar() {
                                         type="tel"
                                         value={formData.phoneNumber}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                                        className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all duration-200 bg-gray-50 focus:bg-white
+                                                    ${errors.phoneNumber ? 'border-red-500' : 'border-gray-200'}`}
                                         placeholder="Telefonszám (opcionális)"
                                     />
+                                    {errors.phoneNumber && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
+                                    )}
                                 </div>
 
                                 <div>

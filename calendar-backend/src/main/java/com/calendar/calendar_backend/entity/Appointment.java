@@ -2,11 +2,13 @@ package com.calendar.calendar_backend.entity;
 
 import com.calendar.calendar_backend.enums.ServiceType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @Entity
@@ -20,6 +22,7 @@ public class Appointment {
     private String id;
 
     @Column(name = "client_name")
+    @NotBlank(message = "Please provide a name")
     private String clientName;
 
     @Enumerated(EnumType.STRING)
@@ -27,12 +30,13 @@ public class Appointment {
     private ServiceType serviceType;
 
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private OffsetDateTime startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private OffsetDateTime endTime;
 
     @Column(name = "phone_number")
+    @Pattern(regexp = "\\d{7,15}", message = "A telefonszám csak számokat tartalmazhat (min 7 számjegy).")
     private String phoneNumber;
 
     @Column(length = 500, name = "notes")
