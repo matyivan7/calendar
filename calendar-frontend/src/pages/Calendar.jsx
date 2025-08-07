@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Calendar, Views, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
-import enUS from 'date-fns/locale/en-US';
+import { useNavigate } from 'react-router-dom';
+import { hu } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/calendar-styles.css';
-import {createAppointment} from "../api/auth.js";
+import {createAppointment, getAllAppointments, updateAppointment} from "../api/auth.js";
 
 
 const serviceTypes = [
@@ -16,7 +17,7 @@ const serviceTypes = [
 ];
 
 const locales = {
-    'en-US': enUS,
+    'hu': hu,
 };
 
 const localizer = dateFnsLocalizer({
@@ -25,26 +26,19 @@ const localizer = dateFnsLocalizer({
     startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
     getDay,
     locales,
+    locale: hu
 });
 
-const initialEvents = [
-    {
-        id: 1,
-        title: 'Sample Event',
-        start: new Date(),
-        end: new Date(new Date().getTime() + 60 * 60 * 1000),
-        phoneNumber: '123456789',
-        notes: 'Some notes',
-        serviceType: 'MANIKUR',
-    },
-];
 
 export default function MyCalendar() {
-    const [events, setEvents] = useState(initialEvents);
+    const [events, setEvents] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [clickTimeout, setClickTimeout] = useState(null);
     const [currentView, setCurrentView] = useState(Views.WEEK);
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editingEventId, setEditingEventId] = useState(null);
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         clientName: '',
         serviceType: serviceTypes[0],
@@ -53,6 +47,28 @@ export default function MyCalendar() {
         phoneNumber: '',
         notes: '',
     });
+
+
+    useEffect(() => {
+        async function fetchAppointments() {
+            try {
+                const data = await getAllAppointments();
+                const parseEvents = data.map(appt => ({
+                    id: appt.id,
+                    title: appt.clientName,
+                    start: new Date(appt.startTime),
+                    end: new Date(appt.endTime),
+                    phoneNumber: appt.phoneNumber,
+                    notes: appt.notes,
+                    serviceType: appt.serviceType,
+                }));
+                setEvents(parseEvents)
+            } catch (error) {
+                console.error("Failed to load all appointments", error)
+            }
+        }
+        fetchAppointments()
+    }, []);
 
     React.useEffect(() => {
         return () => {
@@ -67,7 +83,6 @@ export default function MyCalendar() {
             clearTimeout(clickTimeout);
             setClickTimeout(null);
 
-            console.log('Double clicked on slot:', slotInfo);
             setFormData({
                 clientName: '',
                 serviceType: serviceTypes[0],
@@ -79,7 +94,6 @@ export default function MyCalendar() {
             setShowModal(true);
         } else {
             const timeout = setTimeout(() => {
-                console.log('Single click - selected slot:', slotInfo);
                 setClickTimeout(null);
             }, 300);
 
@@ -88,7 +102,10 @@ export default function MyCalendar() {
     }, [clickTimeout]);
 
     const handleDoubleClickEvent = useCallback((event) => {
+        setIsEditMode(true);
+        setEditingEventId(event.id);
         setFormData({
+            id: event.id,
             clientName: event.title,
             serviceType: event.serviceType || serviceTypes[0],
             startTime: event.start.toISOString(),
@@ -107,24 +124,46 @@ export default function MyCalendar() {
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         try {
-            const newAppt = await createAppointment(formData);
-            setEvents(prev => [...prev, {
-                id: newAppt.id,
-                title: newAppt.clientName,
-                start: new Date(newAppt.startTime),
-                end: new Date(newAppt.endTime),
-                phoneNumber: newAppt.phoneNumber,
-                notes: newAppt.notes,
-                serviceType: newAppt.serviceType,
-            }]);
+            if (isEditMode) {
+                const updatedAppt = await updateAppointment(formData);
+                setEvents(prev => prev.map(event =>
+                    event.id === editingEventId
+                        ? {
+                            title: updatedAppt.clientName,
+                            start: new Date(updatedAppt.startTime),
+                            end: new Date(updatedAppt.endTime),
+                            phoneNumber: updatedAppt.phoneNumber,
+                            notes: updatedAppt.notes,
+                            serviceType: updatedAppt.serviceType,
+                        }
+                        : event
+                ));
+            } else {
+                const newAppt = await createAppointment(formData);
+                setEvents(prev => [...prev, {
+                    id: newAppt.id,
+                    title: newAppt.clientName,
+                    start: new Date(newAppt.startTime),
+                    end: new Date(newAppt.endTime),
+                    phoneNumber: newAppt.phoneNumber,
+                    notes: newAppt.notes,
+                    serviceType: newAppt.serviceType,
+                }]);
+            }
             setShowModal(false);
+            setIsEditMode(false);
+            setEditingEventId(null);
         } catch (err) {
-            console.error('Error creating appointment', err);
-            alert('Failed to create appointment.');
+            console.error('Error saving appointment', err);
+            alert('Failed to save appointment.');
         }
-    }, [formData]);
+    }, [formData, isEditMode, editingEventId]);
 
-    const handleModalClose = () => setShowModal(false);
+    const handleModalClose = () => {
+        setShowModal(false);
+        setIsEditMode(false);
+        setEditingEventId(null);
+    };
 
     const handleNavigate = (action) => {
         const date = new Date(currentDate);
@@ -153,20 +192,25 @@ export default function MyCalendar() {
 
     const formatCurrentDate = () => {
         if (currentView === Views.MONTH) {
-            return format(currentDate, 'yyyy MMMM', { locale: enUS });
+            return format(currentDate, 'yyyy MMMM', { locale: hu });
         } else if (currentView === Views.WEEK) {
             const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
             return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`;
         } else {
-            return format(currentDate, 'yyyy MMMM d', { locale: enUS });
+            return format(currentDate, 'yyyy MMMM d', { locale: hu });
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
     };
 
     const CustomToolbar = () => (
         <div className="custom-toolbar">
-            <div className="toolbar-left" >
+            <div className="toolbar-left">
                 <button
                     className="nav-button"
                     onClick={() => handleNavigate('PREV')}
@@ -206,10 +250,10 @@ export default function MyCalendar() {
 
                 <div className="view-buttons">
                     <button
-                        className={`view-button ${currentView === Views.DAY ? 'active' : ''}`}
-                        onClick={() => setCurrentView(Views.DAY)}
+                        className={`view-button ${currentView === Views.MONTH ? 'active' : ''}`}
+                        onClick={() => setCurrentView(Views.MONTH)}
                     >
-                        Nap
+                        Hónap
                     </button>
                     <button
                         className={`view-button ${currentView === Views.WEEK ? 'active' : ''}`}
@@ -218,10 +262,10 @@ export default function MyCalendar() {
                         Hét
                     </button>
                     <button
-                        className={`view-button ${currentView === Views.MONTH ? 'active' : ''}`}
-                        onClick={() => setCurrentView(Views.MONTH)}
+                        className={`view-button ${currentView === Views.DAY ? 'active' : ''}`}
+                        onClick={() => setCurrentView(Views.DAY)}
                     >
-                        Hónap
+                        Nap
                     </button>
                 </div>
             </div>
@@ -245,9 +289,20 @@ export default function MyCalendar() {
 
             <div className="max-w-7xl mx-auto px-6 py-8">
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-                    <div className="mb-4">
-                        <h2 className="text-xl font-light text-gray-900 mb-2">Időpontok kezelése</h2>
-                        <p className="text-gray-600 text-sm">Dupla kattintással új időpontot hozhat létre</p>
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-xl font-light text-gray-900 mb-2">Időpontok kezelése</h2>
+                            <p className="text-gray-600 text-sm">Dupla kattintással új időpontot hozhat létre</p>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            Kijelentkezés
+                        </button>
                     </div>
 
                     <CustomToolbar />
@@ -258,6 +313,7 @@ export default function MyCalendar() {
                             events={events}
                             startAccessor="start"
                             endAccessor="end"
+                            culture="hu"
                             selectable
                             resizable
                             views={[Views.MONTH, Views.WEEK, Views.DAY]}
@@ -287,7 +343,7 @@ export default function MyCalendar() {
             </div>
 
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 backdrop-blur-sm bg-opacity-30 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md">
                         <div className="px-6 py-4 border-b border-gray-100">
                             <div className="flex items-center justify-between">
@@ -415,7 +471,7 @@ export default function MyCalendar() {
                                         type="submit"
                                         className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl font-medium hover:from-pink-600 hover:to-rose-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-200 shadow-lg"
                                     >
-                                        Létrehozás
+                                        {isEditMode ? 'Módosítás' : 'Létrehozás'}
                                     </button>
                                 </div>
                             </form>

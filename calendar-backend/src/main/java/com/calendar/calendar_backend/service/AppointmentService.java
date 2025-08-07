@@ -5,11 +5,13 @@ import com.calendar.calendar_backend.entity.Appointment;
 import com.calendar.calendar_backend.entity.User;
 import com.calendar.calendar_backend.repository.AppointmentRepository;
 import com.calendar.calendar_backend.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -49,4 +51,17 @@ public class AppointmentService {
     }
 
 
+    public Appointment updateAppointment(AppointmentRequest request) {
+        log.info("Update appointment and save to database");
+        Appointment appointment = appointmentRepository.findAppointmentById(request.id())
+            .orElseThrow(() -> new EntityNotFoundException("Appointment with id " + request.id() + " not found"));
+
+        appointment.setClientName(request.clientName());
+        appointment.setServiceType(request.serviceType());
+        appointment.setStartTime(LocalDateTime.parse(request.startTime()));
+        appointment.setEndTime(LocalDateTime.parse(request.endTime()));
+        appointment.setPhoneNumber(request.phoneNumber());
+        appointment.setNotes(request.notes());
+        return appointmentRepository.saveAndFlush(appointment);
+    }
 }

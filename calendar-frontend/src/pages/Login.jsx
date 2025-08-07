@@ -17,7 +17,7 @@ export default function Login() {
         try {
             const token = await loginUser(username, password);
             localStorage.setItem('token', token);
-            navigate('/home');
+            navigate('/calendar');
         } catch (err) {
             setError('Hibás felhasználónév vagy jelszó!');
         }
@@ -26,7 +26,7 @@ export default function Login() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            navigate('/home');
+            navigate('/calendar');
         }
     }, []);
 

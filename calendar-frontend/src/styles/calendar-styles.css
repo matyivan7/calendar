@@ -3,40 +3,90 @@
 }
 
 .calendar-container .rbc-header {
-    background: linear-gradient(to right, #ec4899, #f43f5e);
-    color: white;
-    padding: 12px 8px;
-    font-weight: 500;
-    border: none;
+    background: linear-gradient(to right, #ec4899, #f43f5e) !important;
+    color: white !important;
+    padding: 12px 8px !important;
+    font-weight: 500 !important;
+    border: none !important;
+    text-align: center !important;
+    font-size: 14px !important;
+}
+
+.calendar-container .rbc-header + .rbc-header {
+    border-left: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .calendar-container .rbc-today {
-    background-color: #fdf2f8;
+    background-color: #fdf2f8 !important;
 }
 
 .calendar-container .rbc-off-range-bg {
-    background-color: #f9fafb;
+    background-color: #f9fafb !important;
 }
 
 .calendar-container .rbc-slot-selection {
-    background-color: rgba(236, 72, 153, 0.1);
+    background-color: rgba(236, 72, 153, 0.1) !important;
 }
 
 .calendar-container .rbc-time-view .rbc-time-gutter {
-    background-color: #f8fafc;
-    border-right: 1px solid #e5e7eb;
+    background-color: #f8fafc !important;
+    border-right: 1px solid #e5e7eb !important;
 }
 
 .calendar-container .rbc-time-view .rbc-time-content {
-    border-left: none;
+    border-left: none !important;
 }
 
 .calendar-container .rbc-day-slot .rbc-time-slot {
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid #f1f5f9 !important;
 }
 
 .calendar-container .rbc-timeslot-group {
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.calendar-container .rbc-time-header {
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.calendar-container .rbc-time-header .rbc-row {
+    border-bottom: none !important;
+}
+
+.calendar-container .rbc-time-header-content {
+    border-left: 1px solid #e5e7eb !important;
+}
+
+.calendar-container .rbc-time-header-gutter {
+    background-color: #f8fafc !important;
+    border-right: 1px solid #e5e7eb !important;
+}
+
+.calendar-container .rbc-month-view .rbc-header {
+    background: linear-gradient(to right, #ec4899, #f43f5e) !important;
+    color: white !important;
+    padding: 12px 8px !important;
+    font-weight: 500 !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.calendar-container .rbc-month-view .rbc-header:last-child {
+    border-right: none !important;
+}
+
+.calendar-container .rbc-time-view .rbc-header {
+    background: linear-gradient(to right, #ec4899, #f43f5e) !important;
+    color: white !important;
+    padding: 12px 8px !important;
+    font-weight: 500 !important;
+    border: none !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.calendar-container .rbc-time-view .rbc-header:last-child {
+    border-right: none !important;
 }
 
 .custom-toolbar {

@@ -49,3 +49,18 @@ export async function createAppointment(request) {
 
     return response.data;
 }
+
+export async function updateAppointment(request) {
+    const token = localStorage.getItem('jwt_token');
+
+    const response = await axios.post(`${API_URL}/appointments/update`,
+        request,
+        {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+    return response.data
+}

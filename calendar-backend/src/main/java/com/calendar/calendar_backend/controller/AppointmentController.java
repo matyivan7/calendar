@@ -30,14 +30,22 @@ public class AppointmentController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/user")
     public ResponseEntity<List<Appointment>> getUserAppointments(@AuthenticationPrincipal UserDetails user) {
-        log.info("Get user appointments endpoint");
+        log.info("Get appointments for user: {}", user.getUsername());
         return ResponseEntity.ok(appointmentService.getAllAppointmentsByUser(user));
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/new")
     public ResponseEntity<Appointment> createAppointment(@RequestBody AppointmentRequest request) {
-        log.info("Create appointment endpoint");
+        log.info("Create appointment request: {}", request);
         return ResponseEntity.ok(appointmentService.createAppointment(request));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/update")
+    public ResponseEntity<Appointment> updateAppointment(@RequestBody AppointmentRequest request) {
+        log.info("Update appointment with id: {}", request.id());
+        Appointment updated = appointmentService.updateAppointment(request);
+        return ResponseEntity.ok(updated);
     }
 }
