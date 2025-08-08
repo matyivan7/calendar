@@ -17,7 +17,6 @@ export async function registerUser(username, password) {
     const response = await axios.post(`${API_URL}/register`,
         {username, password},
         {
-            withCredentials: true,
             headers: {'Content-Type': 'application/json'}
         });
     return response.data;
